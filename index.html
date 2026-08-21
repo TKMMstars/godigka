@@ -126,12 +126,34 @@
 
     .btn-pink { background-color: #ff7597; }
     .btn-blue { background-color: #4dafe2; }
-    .btn-sub-info { background-color: #ff7597; font-size: 12px; }
 
-    .menu-btn .sub-text {
-      font-size: 10px;
-      display: block;
-      opacity: 0.9;
+    /* 방문자 박스 디자인 */
+    .btn-visitor-info {
+      background-color: #ff7597;
+      padding: 10px 16px;
+      border-radius: 25px;
+      border: 2px solid rgba(255, 255, 255, 0.4);
+      box-shadow: 2px 2px 0px rgba(0,0,0,0.2);
+      color: #fff;
+    }
+
+    .visitor-title-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 14px;
+      font-weight: bold;
+      margin-bottom: 4px;
+    }
+
+    .visitor-count-row {
+      display: flex;
+      justify-content: space-between;
+      font-size: 11px;
+      opacity: 0.95;
+      background-color: rgba(0, 0, 0, 0.12);
+      padding: 4px 8px;
+      border-radius: 12px;
     }
 
     /* 3. 우측 픽셀 말풍선 영역 */
@@ -241,7 +263,7 @@ CodeU에서는 너의 생각과 고민을 자유롭게 나누면 답장해줄게
       <a href="#" class="menu-btn btn-pink">
         <div>
           노래듣기
-          <span class="sub-text">Playing Music</span>
+          <span style="font-size: 10px; block; opacity: 0.9;">Playing Music</span>
         </div>
         <span>🎧</span>
       </a>
@@ -271,12 +293,16 @@ CodeU에서는 너의 생각과 고민을 자유롭게 나누면 답장해줄게
         <span>👻</span>
       </a>
 
-      <div class="menu-btn btn-sub-info">
-        <div>
-          방문자
-          <span class="sub-text">Total / Today</span>
+      <!-- 방문자 수 카운터 박스 -->
+      <div class="btn-visitor-info">
+        <div class="visitor-title-row">
+          <span>방문자</span>
+          <span>🍓</span>
         </div>
-        <span>🍓</span>
+        <div class="visitor-count-row">
+          <span>Total : <strong id="total-count">...</strong></span>
+          <span>Today : <strong id="today-count">...</strong></span>
+        </div>
       </div>
     </div>
 
@@ -296,6 +322,46 @@ CodeU에서는 너의 생각과 고민을 자유롭게 나누면 답장해줄게
       <div class="character">🐱</div>
     </div>
   </div>
+
+  <!-- 방문자 카운트 스크립트 -->
+  <script>
+    // 1. 나만의 고유한 사이트 ID (원하는 영문/숫자로 수정 가능)
+    const SITE_ID = "jitut-project-my-unique-key-2026";
+
+    // 2. 오늘 날짜 구하기 (YYYY-MM-DD)
+    const todayDate = new Date().toISOString().split('T')[0];
+
+    // 동일 세션(탭을 닫기 전까지)에서 새로고침 시 중복 증가 방지 체크
+    const hasVisited = sessionStorage.getItem('visited_session');
+
+    // API 호출 함수 (up: 1증가, get: 현재값 조회만)
+    const actionType = hasVisited ? 'get' : 'up';
+
+    // 1. Total (전체 방문자 수) 카운트
+    fetch(`https://api.counterapi.dev/v1/${SITE_ID}/total/${actionType}`)
+      .then(res => res.json())
+      .then(data => {
+        document.getElementById('total-count').innerText = (data.count || 0).toLocaleString();
+      })
+      .catch(err => {
+        console.error('Total Counter Error:', err);
+        document.getElementById('total-count').innerText = '0';
+      });
+
+    // 2. Today (오늘 방문자 수) 카운트 - 오늘 날짜별 키 생성
+    fetch(`https://api.counterapi.dev/v1/${SITE_ID}/today_${todayDate}/${actionType}`)
+      .then(res => res.json())
+      .then(data => {
+        document.getElementById('today-count').innerText = (data.count || 0).toLocaleString();
+      })
+      .catch(err => {
+        console.error('Today Counter Error:', err);
+        document.getElementById('today-count').innerText = '0';
+      });
+
+    // 세션 기록 저장 (새로고침 시 중복 카운트 방지)
+    sessionStorage.setItem('visited_session', 'true');
+  </script>
 
 </body>
 </html>
