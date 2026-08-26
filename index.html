@@ -517,94 +517,71 @@ CodeU에서는 너의 생각과 고민을 자유롭게 나누면 답장해줄게
     // --------------------------------------------------------
     // 보내주신 유튜브 API 코드 방식 100% 동일 적용
     // --------------------------------------------------------
-    <div id="yt-player" class="hidden-player"></div>
+    var player;
+    var isPlayerReady = false;
+    var currentSongId = null;
 
-    <script>
-        const bgmList = {
-            'A': 'rScwLoES2bM', 
-            'B': 'QaqakjrT5nY', 
-            'C': 'ajDAmJYPQ-U', 
-            'D': 'LHacoI6_pTo'  
-        };
+    var tag = document.createElement('script');
+    tag.src = "https://www.youtube.com/iframe_api";
+    var firstScriptTag = document.getElementsByTagName('script')[0];
+    firstScriptTag.parentNode.insertBefore(tag, firstScriptTag);
 
-        var player;
-        var isPlayerReady = false;
-
-        var tag = document.createElement('script');
-        tag.src = "https://www.youtube.com/iframe_api";
-        var firstScriptTag = document.getElementsByTagName('script')[0];
-        firstScriptTag.parentNode.insertBefore(tag, firstScriptTag);
-
-        function onYouTubeIframeAPIReady() {
-            player = new YT.Player('yt-player', {
-                height: '1', width: '1', 
-                playerVars: { 
-                    'autoplay': 0, 
-                    'controls': 0 
-                },
-                events: {
-                    'onReady': function() { isPlayerReady = true; },
-                    'onStateChange': function(event) {
-                        if (event.data === YT.PlayerState.ENDED) {
-                            player.playVideo();
-                        }
-                    }
-                }
-            });
+    function onYouTubeIframeAPIReady() {
+      player = new YT.Player('yt-player', {
+        height: '1', 
+        width: '1', 
+        playerVars: { 
+          'autoplay': 0, 
+          'controls': 0 
+        },
+        events: {
+          'onReady': function() { 
+            isPlayerReady = true; 
+          },
+          'onStateChange': function(event) {
+            if (event.data === YT.PlayerState.ENDED) {
+              player.playVideo();
+            }
+          }
         }
+      });
+    }
 
-        let activeModal = null;
+    function toggleBgm(songId) {
+      if (!isPlayerReady) {
+        alert("음악 플레이어를 불러오는 중입니다. 잠시만 기다려주세요.");
+        return;
+      }
 
-        function openModal(sectionCode) {
-            if(activeModal) closeModal(activeModal);
-            activeModal = sectionCode;
-            document.getElementById('modal-' + sectionCode).style.display = 'flex';
-
-            if(isPlayerReady && bgmList[sectionCode]) {
-                player.cueVideoById(bgmList[sectionCode]);
-                document.getElementById('bgm-btn-' + sectionCode).innerHTML = "▶️ BGM 재생";
-            }
+      // 다른 곡을 누른 경우: 새 곡 cue 후 재생
+      if (currentSongId !== songId) {
+        if (currentSongId) {
+          var prevBtn = document.getElementById('bgm-btn-' + currentSongId);
+          if (prevBtn) prevBtn.innerHTML = "▶️ BGM 재생";
         }
+        
+        currentSongId = songId;
+        player.cueVideoById(songId);
+        
+        setTimeout(function() {
+          player.playVideo();
+          document.getElementById('bgm-btn-' + songId).innerHTML = "⏸️ BGM 일시정지";
+        }, 150);
+        return;
+      }
 
-        function closeModal(sectionCode) {
-            document.getElementById('modal-' + sectionCode).style.display = 'none';
-            activeModal = null;
+      // 동일한 곡 클릭 시: getPlayerState() 상태에 따라 일시정지/재생 토글
+      let state = player.getPlayerState();
+      let btn = document.getElementById('bgm-btn-' + songId);
 
-            if(isPlayerReady && player.stopVideo) {
-                player.stopVideo();
-                document.getElementById('bgm-btn-' + sectionCode).innerHTML = "▶️ BGM 재생";
-            }
-        }
-
-        function closeModalOnOuterClick(event, sectionCode) {
-            if (event.target.classList.contains('modal-overlay')) {
-                closeModal(sectionCode);
-            }
-        }
-
-        window.addEventListener('keydown', function(e) {
-            if (e.key === 'Escape' && activeModal) {
-                closeModal(activeModal);
-            }
-        });
-
-        function toggleBgm(sectionCode) {
-            if (!isPlayerReady) {
-                alert("음악 플레이어를 불러오는 중입니다. 잠시만 기다려주세요.");
-                return;
-            }
-            
-            let state = player.getPlayerState();
-            let btn = document.getElementById('bgm-btn-' + sectionCode);
-            
-            if (state === YT.PlayerState.PLAYING) {
-                player.pauseVideo();
-                btn.innerHTML = "▶️ BGM 재생";
-            } else {
-                player.playVideo();
-                btn.innerHTML = "⏸️ BGM 일시정지";
-            }
-        }
+      if (state === YT.PlayerState.PLAYING) {
+        player.pauseVideo();
+        btn.innerHTML = "▶️ BGM 재생";
+      } else {
+        player.playVideo();
+        btn.innerHTML = "⏸️ BGM 일시정지";
+      }
+    }
 
     // --------------------------------------------------------
     // 모달창 제어 (팝업을 닫아도 BGM은 정지되지 않고 계속 재생)
