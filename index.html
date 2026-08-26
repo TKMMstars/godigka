@@ -353,8 +353,8 @@
 </head>
 <body>
 
-  <!-- 유튜브 오디오 재생용 (화면에는 안 보이지만 1x1 크기로 유지하여 재생 차단 방지) -->
-  <div style="position: absolute; left: -9999px; top: -9999px; width: 1px; height: 1px; overflow: hidden;">
+  <!-- 브라우저 자동재생 차단을 우회하기 위해 화면에 존재하되 투명하게 처리한 플레이어 -->
+  <div style="position: fixed; left: 0; top: 0; width: 1px; height: 1px; opacity: 0; pointer-events: none; overflow: hidden;">
     <iframe id="yt-player" src="" allow="autoplay"></iframe>
   </div>
 
@@ -498,7 +498,6 @@ CodeU에서는 너의 생각과 고민을 자유롭게 나누면 답장해줄게
     }
 
     function closeMusicModal() {
-      // 팝업 창만 닫고, 소리는 유지
       document.getElementById('music-modal').style.display = 'none';
     }
 
@@ -510,7 +509,6 @@ CodeU에서는 너의 생각과 고민을 자유롭게 나누면 답장해줄게
 
     function playSong(videoId) {
       var player = document.getElementById('yt-player');
-      // 백그라운드 재생
       player.src = "https://www.youtube.com/embed/" + videoId + "?autoplay=1";
     }
 
