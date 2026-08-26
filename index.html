@@ -36,7 +36,7 @@
       align-items: start;
     }
 
-    /* 1. 좌측 영역 (타이틀 + 사용방법) */
+    /* 1. 좌측 영역 */
     .left-col {
       display: flex;
       flex-direction: column;
@@ -229,19 +229,33 @@
       }
     }
 
-    /* 음악 플레이어 모달 (팝업창) */
+    /* 음악 플레이어 모달 (팝업창) - 숨김 처리 방식 변경 */
     .modal {
-      display: none;
       position: fixed;
-      z-index: 1000;
       left: 0;
       top: 0;
       width: 100%;
       height: 100%;
       background-color: rgba(0, 0, 0, 0.7);
+      display: flex;
       justify-content: center;
       align-items: center;
       padding: 20px;
+      
+      /* 핵심 수정: display: none 대신 투명도와 포인터 이벤트로 제어 */
+      opacity: 0;
+      visibility: hidden;
+      pointer-events: none;
+      z-index: -1;
+      transition: opacity 0.2s ease-in-out;
+    }
+
+    /* 팝업창이 열렸을 때의 상태 */
+    .modal.show {
+      opacity: 1;
+      visibility: visible;
+      pointer-events: auto;
+      z-index: 1000;
     }
 
     .modal-content {
@@ -290,9 +304,30 @@
       text-align: center;
     }
 
+    /* 유튜브 영상을 담는 공간 (화면에 보여서 차단을 방지) */
+    .video-container {
+      position: relative;
+      width: 100%;
+      padding-bottom: 56.25%; /* 16:9 비율 */
+      height: 0;
+      border: 4px solid #000;
+      margin-bottom: 15px;
+      background-color: #000;
+      overflow: hidden;
+    }
+
+    .video-container iframe {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      border: 0;
+    }
+
     .playlist {
       list-style: none;
-      max-height: 250px;
+      max-height: 200px;
       overflow-y: auto;
       border: 3px solid #1a3952;
       background-color: rgba(255,255,255,0.2);
@@ -352,11 +387,6 @@
   </style>
 </head>
 <body>
-
-  <!-- 브라우저 자동재생 차단을 우회하기 위해 화면에 존재하되 투명하게 처리한 플레이어 -->
-  <div style="position: fixed; left: 0; top: 0; width: 1px; height: 1px; opacity: 0; pointer-events: none; overflow: hidden;">
-    <iframe id="yt-player" src="" allow="autoplay"></iframe>
-  </div>
 
   <div class="container">
     <!-- 좌측 영역 -->
@@ -454,6 +484,11 @@ CodeU에서는 너의 생각과 고민을 자유롭게 나누면 답장해줄게
     <div class="modal-content">
       <div class="close-btn" onclick="closeMusicModal()">X</div>
       <h2 class="modal-title">🎧 플레이리스트</h2>
+      
+      <!-- 유튜브 영상 화면 (플레이어 노출) -->
+      <div class="video-container">
+        <iframe id="yt-player" src="" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+      </div>
 
       <!-- 곡 목록 -->
       <ul class="playlist">
@@ -494,11 +529,13 @@ CodeU에서는 너의 생각과 고민을 자유롭게 나누면 답장해줄게
     // 1. 음악 모달창 제어 함수
     // --------------------------------------------------------
     function openMusicModal() {
-      document.getElementById('music-modal').style.display = 'flex';
+      // show 클래스를 추가하여 모달을 보이게 합니다.
+      document.getElementById('music-modal').classList.add('show');
     }
 
     function closeMusicModal() {
-      document.getElementById('music-modal').style.display = 'none';
+      // show 클래스를 제거하여 모달을 투명하게 숨깁니다. (유튜브는 꺼지지 않음!)
+      document.getElementById('music-modal').classList.remove('show');
     }
 
     function handleModalClick(event) {
@@ -509,6 +546,7 @@ CodeU에서는 너의 생각과 고민을 자유롭게 나누면 답장해줄게
 
     function playSong(videoId) {
       var player = document.getElementById('yt-player');
+      // 재생 버튼 클릭 시 해당 곡 자동재생
       player.src = "https://www.youtube.com/embed/" + videoId + "?autoplay=1";
     }
 
