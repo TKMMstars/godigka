@@ -298,13 +298,26 @@
     .modal-title {
       color: #fff;
       text-shadow: 2px 2px 0 #000;
-      margin-bottom: 15px;
+      margin-bottom: 12px;
       font-size: 20px;
       text-align: center;
     }
 
-    /* ⭐️ 화면에서 완전히 차단·숨김 처리된 백그라운드 플레이어 ⭐️ */
-    .video-container {
+    /* 현재 재생 곡 표시 상자 */
+    .now-playing-box {
+      background-color: rgba(0, 0, 0, 0.2);
+      border: 2px solid #1a3952;
+      color: #fff;
+      padding: 8px 12px;
+      border-radius: 8px;
+      font-size: 12px;
+      margin-bottom: 12px;
+      text-align: center;
+      text-shadow: 1px 1px 0 #000;
+    }
+
+    /* 백그라운드 숨김 플레이어 */
+    .hidden-player {
       position: absolute;
       width: 1px;
       height: 1px;
@@ -317,7 +330,7 @@
 
     .playlist {
       list-style: none;
-      max-height: 280px;
+      max-height: 260px;
       overflow-y: auto;
       border: 3px solid #1a3952;
       background-color: rgba(255,255,255,0.2);
@@ -357,7 +370,7 @@
       word-break: keep-all;
     }
 
-    /* 버튼 눌림(클릭) 애니메이션 효과 */
+    /* 재생/일시정지 버튼 스타일 */
     .play-btn {
       background-color: #ff7597;
       color: white;
@@ -372,14 +385,20 @@
       transition: transform 0.05s ease, box-shadow 0.05s ease, background-color 0.1s;
     }
 
+    .play-btn.playing {
+      background-color: #4dafe2;
+    }
+
     .play-btn:active {
       transform: translate(2px, 2px);
       box-shadow: 0px 0px 0 #000;
-      background-color: #e05e7e;
     }
   </style>
 </head>
 <body>
+
+  <!-- 화면 뒤에 숨겨진 유튜브 API 플레이어 DOM -->
+  <div id="yt-player" class="hidden-player"></div>
 
   <div class="container">
     <!-- 좌측 영역 -->
@@ -476,11 +495,11 @@ CodeU에서는 너의 생각과 고민을 자유롭게 나누면 답장해줄게
   <div id="music-modal" class="modal" onclick="handleModalClick(event)">
     <div class="modal-content">
       <div class="close-btn" onclick="closeMusicModal()">X</div>
-      <h2 class="modal-title">🎧 플레이리스트</h2>
+      <h2 class="modal-title">🎧 BGM 플레이리스트</h2>
       
-      <!-- 백그라운드에서 오디오만 재생하는 숨겨진 플레이어 -->
-      <div class="video-container">
-        <iframe id="yt-player" src="" frameborder="0" allow="autoplay"></iframe>
+      <!-- 현재 재생 상태 표시바 -->
+      <div class="now-playing-box" id="now-playing-txt">
+        🎵 선택된 음악이 없습니다.
       </div>
 
       <!-- 곡 목록 -->
@@ -488,30 +507,30 @@ CodeU에서는 너의 생각과 고민을 자유롭게 나누면 답장해줄게
         <li>
           <div class="song-info">
             <span class="song-number">1</span>
-            <span class="song-title">여우비 / 텐코 시부키(Tenko Shibuki)</span>
+            <span class="song-title">여우비 / 텐코 시부키</span>
           </div>
-          <button class="play-btn" onclick="playSong('sWZoIawG0tA')">▶ 재생</button>
+          <button class="play-btn" data-id="sWZoIawG0tA" data-title="여우비 / 텐코 시부키" onclick="toggleSong('sWZoIawG0tA', '여우비 / 텐코 시부키')">▶ 재생</button>
         </li>
         <li>
           <div class="song-info">
             <span class="song-number">2</span>
             <span class="song-title">타상연화(打上花火) - 이샤 & 헤비</span>
           </div>
-          <button class="play-btn" onclick="playSong('xRpQ_aVjTJE')">▶ 재생</button>
+          <button class="play-btn" data-id="xRpQ_aVjTJE" data-title="타상연화 - 이샤 & 헤비" onclick="toggleSong('xRpQ_aVjTJE', '타상연화 - 이샤 & 헤비')">▶ 재생</button>
         </li>
         <li>
           <div class="song-info">
             <span class="song-number">3</span>
             <span class="song-title">날아오를 때(飛ぶ時) - Cover by Hebi</span>
           </div>
-          <button class="play-btn" onclick="playSong('QaqakjrT5nY')">▶ 재생</button>
+          <button class="play-btn" data-id="QaqakjrT5nY" data-title="날아오를 때 - Cover by Hebi" onclick="toggleSong('QaqakjrT5nY', '날아오를 때 - Cover by Hebi')">▶ 재생</button>
         </li>
         <li>
           <div class="song-info">
             <span class="song-number">4</span>
             <span class="song-title">Hebi - Become Official MV</span>
           </div>
-          <button class="play-btn" onclick="playSong('XPqXU3SfxdU')">▶ 재생</button>
+          <button class="play-btn" data-id="XPqXU3SfxdU" data-title="Hebi - Become Official MV" onclick="toggleSong('XPqXU3SfxdU', 'Hebi - Become Official MV')">▶ 재생</button>
         </li>
       </ul>
     </div>
@@ -519,7 +538,97 @@ CodeU에서는 너의 생각과 고민을 자유롭게 나누면 답장해줄게
 
   <script>
     // --------------------------------------------------------
-    // 1. 음악 모달창 및 백그라운드 음원 재생 제어
+    // 1. 유튜브 IFrame API 로드 및 제어 로직
+    // --------------------------------------------------------
+    var player;
+    var isPlayerReady = false;
+    var currentVideoId = "";
+    var currentSongTitle = "";
+
+    // 유튜브 API 스크립트 동적 태그 추가
+    var tag = document.createElement('script');
+    tag.src = "https://www.youtube.com/iframe_api";
+    var firstScriptTag = document.getElementsByTagName('script')[0];
+    firstScriptTag.parentNode.insertBefore(tag, firstScriptTag);
+
+    // 유튜브 API 준비 완료 시 실행
+    function onYouTubeIframeAPIReady() {
+      player = new YT.Player('yt-player', {
+        height: '1',
+        width: '1',
+        playerVars: {
+          'autoplay': 0,
+          'controls': 0
+        },
+        events: {
+          'onReady': function() { 
+            isPlayerReady = true; 
+          },
+          'onStateChange': function(event) {
+            // 곡이 다 끝나면 자동 반복 재생
+            if (event.data === YT.PlayerState.ENDED) {
+              player.playVideo();
+            }
+            updateUI();
+          }
+        }
+      });
+    }
+
+    // 노래 재생 / 일시정지 토글 함수
+    function toggleSong(videoId, title) {
+      if (!isPlayerReady) {
+        alert("음악 플레이어를 불러오는 중입니다. 잠시만 기다려주세요!");
+        return;
+      }
+
+      // 같은 곡을 클릭한 경우 (재생 <-> 일시정지)
+      if (currentVideoId === videoId) {
+        var state = player.getPlayerState();
+        if (state === YT.PlayerState.PLAYING) {
+          player.pauseVideo();
+        } else {
+          player.playVideo();
+        }
+      } 
+      // 새로운 곡을 클릭한 경우
+      else {
+        currentVideoId = videoId;
+        currentSongTitle = title;
+        player.loadVideoById(videoId);
+      }
+    }
+
+    // 재생 상태에 따라 UI(버튼 텍스트, 색상, 현재 재생 곡 텍스트) 업데이트
+    function updateUI() {
+      if (!isPlayerReady) return;
+
+      var state = player.getPlayerState();
+      var buttons = document.querySelectorAll('.play-btn');
+      var statusBox = document.getElementById('now-playing-txt');
+
+      buttons.forEach(function(btn) {
+        var id = btn.getAttribute('data-id');
+        if (id === currentVideoId && state === YT.PlayerState.PLAYING) {
+          btn.innerHTML = "⏸️ 정지";
+          btn.classList.add('playing');
+        } else {
+          btn.innerHTML = "▶ 재생";
+          btn.classList.remove('playing');
+        }
+      });
+
+      if (state === YT.PlayerState.PLAYING) {
+        statusBox.innerHTML = "🎶 현재 재생 중: <strong>" + currentSongTitle + "</strong>";
+      } else if (state === YT.PlayerState.PAUSED) {
+        statusBox.innerHTML = "⏸️ 일시정지됨: <strong>" + currentSongTitle + "</strong>";
+      } else if (currentVideoId === "") {
+        statusBox.innerHTML = "🎵 선택된 음악이 없습니다.";
+      }
+    }
+
+    // --------------------------------------------------------
+    // 2. 모달창 제어
     // --------------------------------------------------------
     function openMusicModal() {
       document.getElementById('music-modal').classList.add('show');
@@ -535,18 +644,18 @@ CodeU에서는 너의 생각과 고민을 자유롭게 나누면 답장해줄게
       }
     }
 
-    function playSong(videoId) {
-      var player = document.getElementById('yt-player');
-      // 백그라운드 iframe에 오디오 자동재생 링크 설정
-      player.src = "https://www.youtube.com/embed/" + videoId + "?autoplay=1";
-    }
+    // ESC 키 입력 시 모달 닫기
+    window.addEventListener('keydown', function(e) {
+      if (e.key === 'Escape') {
+        closeMusicModal();
+      }
+    });
 
     // --------------------------------------------------------
-    // 2. 방문자 수 카운터 로직
+    // 3. 방문자 수 카운터 로직
     // --------------------------------------------------------
     const NAMESPACE = "jitut_project_2026_v1"; 
     const todayDate = new Date().toISOString().split('T')[0];
-    
     const hasVisited = sessionStorage.getItem('visited_session');
     
     async function updateCounter(key, elementId) {
