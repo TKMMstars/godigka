@@ -127,36 +127,6 @@
     .btn-pink { background-color: #ff7597; }
     .btn-blue { background-color: #4dafe2; }
 
-    /* 메인 화면 미니 음악 플레이어 바 */
-    .mini-player {
-      background-color: #1a3952;
-      border: 2px solid rgba(255, 255, 255, 0.4);
-      border-radius: 20px;
-      padding: 10px 16px;
-      color: #fff;
-      box-shadow: 2px 2px 0px rgba(0,0,0,0.2);
-      font-size: 12px;
-      display: flex;
-      flex-direction: column;
-      gap: 4px;
-    }
-
-    .mini-player-top {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      font-weight: bold;
-      color: #ff7597;
-    }
-
-    .mini-player-title {
-      font-size: 11px;
-      white-space: nowrap;
-      overflow: hidden;
-      text-overflow: ellipsis;
-      color: #e0e0e0;
-    }
-
     .btn-visitor-info {
       background-color: #ff7597;
       padding: 10px 16px;
@@ -383,8 +353,8 @@
 </head>
 <body>
 
-  <!-- 백그라운드에서 오디오(소리)만 재생하기 위한 숨겨진 유튜브 플레이어 -->
-  <div style="display:none;">
+  <!-- 유튜브 오디오 재생용 (화면에는 안 보이지만 1x1 크기로 유지하여 재생 차단 방지) -->
+  <div style="position: absolute; left: -9999px; top: -9999px; width: 1px; height: 1px; overflow: hidden;">
     <iframe id="yt-player" src="" allow="autoplay"></iframe>
   </div>
 
@@ -421,15 +391,6 @@ CodeU에서는 너의 생각과 고민을 자유롭게 나누면 답장해줄게
         </div>
         <span>🎧</span>
       </a>
-
-      <!-- 🎵 미니 플레이어 (팝업을 닫아도 현재 재생 상태를 보여줌) -->
-      <div class="mini-player">
-        <div class="mini-player-top">
-          <span>NOW PLAYING</span>
-          <span>🎵</span>
-        </div>
-        <div id="mini-song-title" class="mini-player-title">재생 중인 곡이 없습니다.</div>
-      </div>
 
       <!-- Code U 외부 링크 -->
       <a href="https://tkmmstars.github.io/" target="_blank" class="menu-btn btn-blue">
@@ -488,7 +449,7 @@ CodeU에서는 너의 생각과 고민을 자유롭게 나누면 답장해줄게
     </div>
   </div>
 
-  <!-- 음악 플레이어 모달 (영상 화면 없이 곡 목록만 선택하는 팝업) -->
+  <!-- 음악 플레이어 모달 (팝업창) -->
   <div id="music-modal" class="modal" onclick="handleModalClick(event)">
     <div class="modal-content">
       <div class="close-btn" onclick="closeMusicModal()">X</div>
@@ -501,28 +462,28 @@ CodeU에서는 너의 생각과 고민을 자유롭게 나누면 답장해줄게
             <span class="song-number">1</span>
             <span class="song-title">여우비 / 텐코 시부키(Tenko Shibuki)</span>
           </div>
-          <button class="play-btn" onclick="playSong('sWZoIawG0tA', '여우비 / 텐코 시부키')">▶ 재생</button>
+          <button class="play-btn" onclick="playSong('sWZoIawG0tA')">▶ 재생</button>
         </li>
         <li>
           <div class="song-info">
             <span class="song-number">2</span>
             <span class="song-title">타상연화(打上花火) - 이샤 & 헤비</span>
           </div>
-          <button class="play-btn" onclick="playSong('xRpQ_aVjTJE', '타상연화 - 이샤 & 헤비')">▶ 재생</button>
+          <button class="play-btn" onclick="playSong('xRpQ_aVjTJE')">▶ 재생</button>
         </li>
         <li>
           <div class="song-info">
             <span class="song-number">3</span>
             <span class="song-title">날아오를 때(飛ぶ時) - Cover by Hebi</span>
           </div>
-          <button class="play-btn" onclick="playSong('QaqakjrT5nY', '날아오를 때 - Hebi')">▶ 재생</button>
+          <button class="play-btn" onclick="playSong('QaqakjrT5nY')">▶ 재생</button>
         </li>
         <li>
           <div class="song-info">
             <span class="song-number">4</span>
             <span class="song-title">Hebi - Become Official MV</span>
           </div>
-          <button class="play-btn" onclick="playSong('XPqXU3SfxdU', 'Hebi - Become')">▶ 재생</button>
+          <button class="play-btn" onclick="playSong('XPqXU3SfxdU')">▶ 재생</button>
         </li>
       </ul>
     </div>
@@ -537,24 +498,20 @@ CodeU에서는 너의 생각과 고민을 자유롭게 나누면 답장해줄게
     }
 
     function closeMusicModal() {
-      // 팝업 창만 숨기고, 소리를 내는 유튜브 프레임(yt-player)은 건드리지 않음!
+      // 팝업 창만 닫고, 소리는 유지
       document.getElementById('music-modal').style.display = 'none';
     }
 
-    // 모달 배경을 눌렀을 때도 팝업만 닫히고 노래는 유지
     function handleModalClick(event) {
       if (event.target.id === 'music-modal') {
         closeMusicModal();
       }
     }
 
-    function playSong(videoId, songTitle) {
+    function playSong(videoId) {
       var player = document.getElementById('yt-player');
-      // 백그라운드 유튜브 오디오 재생 주소 설정
+      // 백그라운드 재생
       player.src = "https://www.youtube.com/embed/" + videoId + "?autoplay=1";
-      
-      // 메인 화면 미니 플레이어에 현재 곡 이름 표시
-      document.getElementById('mini-song-title').innerText = songTitle;
     }
 
     // --------------------------------------------------------
