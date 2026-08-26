@@ -303,31 +303,21 @@
       text-align: center;
     }
 
-    /* 화면에 보여지는 유튜브 플레이어 컨테이너 */
+    /* ⭐️ 화면에서 완전히 차단·숨김 처리된 백그라운드 플레이어 ⭐️ */
     .video-container {
-      position: relative;
-      width: 100%;
-      padding-bottom: 56.25%; /* 16:9 비율 */
-      height: 0;
-      border: 3px solid #000;
-      margin-bottom: 15px;
-      background-color: #000;
-      overflow: hidden;
-      border-radius: 8px;
-    }
-
-    .video-container iframe {
       position: absolute;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
-      border: 0;
+      width: 1px;
+      height: 1px;
+      top: -9999px;
+      left: -9999px;
+      overflow: hidden;
+      opacity: 0;
+      pointer-events: none;
     }
 
     .playlist {
       list-style: none;
-      max-height: 200px;
+      max-height: 280px;
       overflow-y: auto;
       border: 3px solid #1a3952;
       background-color: rgba(255,255,255,0.2);
@@ -367,7 +357,7 @@
       word-break: keep-all;
     }
 
-    /* ⭐️ 버튼 눌림(클릭) 애니메이션 효과 ⭐️ */
+    /* 버튼 눌림(클릭) 애니메이션 효과 */
     .play-btn {
       background-color: #ff7597;
       color: white;
@@ -488,9 +478,9 @@ CodeU에서는 너의 생각과 고민을 자유롭게 나누면 답장해줄게
       <div class="close-btn" onclick="closeMusicModal()">X</div>
       <h2 class="modal-title">🎧 플레이리스트</h2>
       
-      <!-- 화면에 띄워지는 유튜브 플레이어 (웹 플레이어 형태) -->
+      <!-- 백그라운드에서 오디오만 재생하는 숨겨진 플레이어 -->
       <div class="video-container">
-        <iframe id="yt-player" src="" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+        <iframe id="yt-player" src="" frameborder="0" allow="autoplay"></iframe>
       </div>
 
       <!-- 곡 목록 -->
@@ -529,14 +519,13 @@ CodeU에서는 너의 생각과 고민을 자유롭게 나누면 답장해줄게
 
   <script>
     // --------------------------------------------------------
-    // 1. 음악 모달창 및 재생 제어 함수
+    // 1. 음악 모달창 및 백그라운드 음원 재생 제어
     // --------------------------------------------------------
     function openMusicModal() {
       document.getElementById('music-modal').classList.add('show');
     }
 
     function closeMusicModal() {
-      // 팝업을 닫아도 유튜브 영상이 렌더링된 상태를 유지하여 소리가 끊기지 않음
       document.getElementById('music-modal').classList.remove('show');
     }
 
@@ -548,7 +537,7 @@ CodeU에서는 너의 생각과 고민을 자유롭게 나누면 답장해줄게
 
     function playSong(videoId) {
       var player = document.getElementById('yt-player');
-      // 클릭 시 해당 영상으로 즉시 로드 및 자동재생 실행
+      // 백그라운드 iframe에 오디오 자동재생 링크 설정
       player.src = "https://www.youtube.com/embed/" + videoId + "?autoplay=1";
     }
 
