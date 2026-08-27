@@ -229,7 +229,7 @@
       }
     }
 
-    /* 음악 플레이어 모달 (팝업창) */
+    /* 팝업 모달 공통 스타일 */
     .modal {
       position: fixed;
       left: 0;
@@ -303,7 +303,7 @@
       text-align: center;
     }
 
-    /* 화면에서 가려진 1px 크기의 숨김 플레이어 */
+    /* 화면에서 가려진 1px 크기의 숨김 백그라운드 플레이어 */
     .hidden-player {
       position: absolute;
       width: 1px;
@@ -315,6 +315,7 @@
       pointer-events: none;
     }
 
+    /* 플레이리스트 디자인 */
     .playlist {
       list-style: none;
       max-height: 280px;
@@ -375,11 +376,31 @@
       transform: translate(2px, 2px);
       box-shadow: 0px 0px 0 #000;
     }
+
+    .confirm-btn {
+      background-color: #4dafe2;
+      color: white;
+      border: 2px solid #000;
+      padding: 8px 24px;
+      cursor: pointer;
+      font-family: inherit;
+      font-weight: bold;
+      font-size: 14px;
+      box-shadow: 2px 2px 0 #000;
+      margin-top: 15px;
+      transition: transform 0.05s ease;
+    }
+
+    .confirm-btn:active {
+      transform: translate(2px, 2px);
+      box-shadow: 0px 0px 0 #000;
+    }
+
   </style>
 </head>
 <body>
 
-  <!-- 화면 뒤에 배치되는 유튜브 API 플레이어 영역 -->
+  <!-- 🎵 화면 뒤에 배치되는 유튜브 백그라운드 플레이어 영역 -->
   <div id="yt-player" class="hidden-player"></div>
 
   <div class="container">
@@ -422,23 +443,23 @@ CodeU에서는 너의 생각과 고민을 자유롭게 나누면 답장해줄게
         <span>👾</span>
       </a>
 
-      <!-- 나머지 버튼들 -->
-      <a href="#" onclick="alert('업데이트 준비 중입니다. 🛠️'); return false;" class="menu-btn btn-pink">
+      <!-- 🚧 업데이트 팝업이 연결된 메뉴들 -->
+      <a href="#" onclick="openUpdateModal(); return false;" class="menu-btn btn-pink">
         <span style="font-size: 12px;">판타지소설 단편 &lt;티르샤와 하얀마법서&gt;</span>
         <span>📖</span>
       </a>
 
-      <a href="#" onclick="alert('업데이트 준비 중입니다. 🛠️'); return false;" class="menu-btn btn-blue">
+      <a href="#" onclick="openUpdateModal(); return false;" class="menu-btn btn-blue">
         <span>미니게임</span>
         <span>🌀</span>
       </a>
 
-      <a href="#" onclick="alert('업데이트 준비 중입니다. 🛠️'); return false;" class="menu-btn btn-pink">
+      <a href="#" onclick="openUpdateModal(); return false;" class="menu-btn btn-pink">
         <span>읽을거리</span>
         <span>🌸</span>
       </a>
 
-      <a href="#" onclick="alert('업데이트 준비 중입니다. 🛠️'); return false;" class="menu-btn btn-blue">
+      <a href="#" onclick="openUpdateModal(); return false;" class="menu-btn btn-blue">
         <span>낙서장</span>
         <span>👻</span>
       </a>
@@ -473,8 +494,8 @@ CodeU에서는 너의 생각과 고민을 자유롭게 나누면 답장해줄게
     </div>
   </div>
 
-  <!-- 음악 플레이어 모달 (팝업창) -->
-  <div id="music-modal" class="modal" onclick="handleModalClick(event)">
+  <!-- 🎧 음악 플레이어 모달 -->
+  <div id="music-modal" class="modal" onclick="handleMusicModalClick(event)">
     <div class="modal-content">
       <div class="close-btn" onclick="closeMusicModal()">X</div>
       <h2 class="modal-title">🎧 BGM 플레이리스트</h2>
@@ -513,9 +534,21 @@ CodeU에서는 너의 생각과 고민을 자유롭게 나누면 답장해줄게
     </div>
   </div>
 
+  <!-- 🚧 업데이트 준비중 팝업 모달 -->
+  <div id="update-modal" class="modal" onclick="handleUpdateModalClick(event)">
+    <div class="modal-content" style="max-width: 320px; text-align: center; background-color: #ffffff;">
+      <div class="close-btn" onclick="closeUpdateModal()">X</div>
+      <h2 class="modal-title" style="color: #000; text-shadow: none;">공지사항</h2>
+      <p style="color: #333; font-size: 15px; margin-bottom: 10px; line-height: 1.5;">
+        🚧 현재 업데이트 준비 중입니다. 🛠️<br>조금만 기다려주세요!
+      </p>
+      <button class="confirm-btn" onclick="closeUpdateModal()">확인</button>
+    </div>
+  </div>
+
   <script>
     // --------------------------------------------------------
-    // 보내주신 유튜브 API 코드 방식 100% 동일 적용
+    // 1. 유튜브 백그라운드 API 제어 로직
     // --------------------------------------------------------
     var player;
     var isPlayerReady = false;
@@ -553,7 +586,7 @@ CodeU에서는 너의 생각과 고민을 자유롭게 나누면 답장해줄게
         return;
       }
 
-      // 다른 곡을 누른 경우: 새 곡 cue 후 재생
+      // 다른 곡을 누른 경우: 새 곡 큐잉 후 재생
       if (currentSongId !== songId) {
         if (currentSongId) {
           var prevBtn = document.getElementById('bgm-btn-' + currentSongId);
@@ -570,7 +603,7 @@ CodeU에서는 너의 생각과 고민을 자유롭게 나누면 답장해줄게
         return;
       }
 
-      // 동일한 곡 클릭 시: getPlayerState() 상태에 따라 일시정지/재생 토글
+      // 동일한 곡 클릭 시: 상태에 따라 일시정지/재생 토글
       let state = player.getPlayerState();
       let btn = document.getElementById('bgm-btn-' + songId);
 
@@ -584,30 +617,41 @@ CodeU에서는 너의 생각과 고민을 자유롭게 나누면 답장해줄게
     }
 
     // --------------------------------------------------------
-    // 모달창 제어 (팝업을 닫아도 BGM은 정지되지 않고 계속 재생)
+    // 2. 모달(팝업) 제어 함수
     // --------------------------------------------------------
+    
+    // 음악 모달
     function openMusicModal() {
       document.getElementById('music-modal').classList.add('show');
     }
-
     function closeMusicModal() {
       document.getElementById('music-modal').classList.remove('show');
     }
-
-    function handleModalClick(event) {
-      if (event.target.id === 'music-modal') {
-        closeMusicModal();
-      }
+    function handleMusicModalClick(event) {
+      if (event.target.id === 'music-modal') closeMusicModal();
     }
 
+    // 업데이트 준비중 모달
+    function openUpdateModal() {
+      document.getElementById('update-modal').classList.add('show');
+    }
+    function closeUpdateModal() {
+      document.getElementById('update-modal').classList.remove('show');
+    }
+    function handleUpdateModalClick(event) {
+      if (event.target.id === 'update-modal') closeUpdateModal();
+    }
+
+    // ESC 키 입력 시 켜져있는 모달 닫기
     window.addEventListener('keydown', function(e) {
       if (e.key === 'Escape') {
         closeMusicModal();
+        closeUpdateModal();
       }
     });
 
     // --------------------------------------------------------
-    // 방문자 수 카운터 로직
+    // 3. 방문자 수 카운터 로직
     // --------------------------------------------------------
     const NAMESPACE = "jitut_project_2026_v1"; 
     const todayDate = new Date().toISOString().split('T')[0];
