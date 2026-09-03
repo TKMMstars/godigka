@@ -586,7 +586,6 @@ CodeU에서는 너의 생각과 고민을 자유롭게 나누면 답장해줄게
         return;
       }
 
-      // 다른 곡을 누른 경우: 새 곡 큐잉 후 재생
       if (currentSongId !== songId) {
         if (currentSongId) {
           var prevBtn = document.getElementById('bgm-btn-' + currentSongId);
@@ -603,7 +602,6 @@ CodeU에서는 너의 생각과 고민을 자유롭게 나누면 답장해줄게
         return;
       }
 
-      // 동일한 곡 클릭 시: 상태에 따라 일시정지/재생 토글
       let state = player.getPlayerState();
       let btn = document.getElementById('bgm-btn-' + songId);
 
@@ -619,8 +617,6 @@ CodeU에서는 너의 생각과 고민을 자유롭게 나누면 답장해줄게
     // --------------------------------------------------------
     // 2. 모달(팝업) 제어 함수
     // --------------------------------------------------------
-    
-    // 음악 모달
     function openMusicModal() {
       document.getElementById('music-modal').classList.add('show');
     }
@@ -631,7 +627,6 @@ CodeU에서는 너의 생각과 고민을 자유롭게 나누면 답장해줄게
       if (event.target.id === 'music-modal') closeMusicModal();
     }
 
-    // 업데이트 준비중 모달
     function openUpdateModal() {
       document.getElementById('update-modal').classList.add('show');
     }
@@ -642,7 +637,6 @@ CodeU에서는 너의 생각과 고민을 자유롭게 나누면 답장해줄게
       if (event.target.id === 'update-modal') closeUpdateModal();
     }
 
-    // ESC 키 입력 시 켜져있는 모달 닫기
     window.addEventListener('keydown', function(e) {
       if (e.key === 'Escape') {
         closeMusicModal();
@@ -651,7 +645,7 @@ CodeU에서는 너의 생각과 고민을 자유롭게 나누면 답장해줄게
     });
 
     // --------------------------------------------------------
-    // 3. 방문자 수 카운터 로직
+    // 3. 방문자 수 카운터 로직 (기기별 오차 버그 수정)
     // --------------------------------------------------------
     const NAMESPACE = "jitut_project_2026_v1"; 
     const todayDate = new Date().toISOString().split('T')[0];
@@ -662,20 +656,17 @@ CodeU에서는 너의 생각과 고민을 자유롭게 나누면 답장해줄게
       
       try {
         const response = await fetch(`https://api.counterapi.dev/v1/${NAMESPACE}/${key}/${action}`);
-        if (!response.ok) throw new Error("API 연동 실패");
+        
+        if (!response.ok) {
+          throw new Error("서버 응답 오류");
+        }
         
         const data = await response.json();
         document.getElementById(elementId).innerText = data.count.toLocaleString();
         
       } catch (error) {
-        let localCount = parseInt(localStorage.getItem(key) || "0");
-        
-        if (!hasVisited) {
-          localCount += 1;
-          localStorage.setItem(key, localCount);
-        }
-        
-        document.getElementById(elementId).innerText = localCount.toLocaleString();
+        console.error("카운터 API 연동 실패:", error);
+        document.getElementById(elementId).innerText = "점검중";
       }
     }
 
