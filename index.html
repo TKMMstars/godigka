@@ -43,6 +43,7 @@
       gap: 15px;
     }
 
+    /* 타이틀 카드 (버튼화 & 클릭 유도 디자인 추가) */
     .title-card {
       background-color: #ffffff;
       border: 3px solid #000;
@@ -52,16 +53,46 @@
       align-items: center;
       gap: 12px;
       box-shadow: 3px 3px 0px rgba(0,0,0,0.3);
+      cursor: pointer;
+      transition: transform 0.1s ease, box-shadow 0.1s ease;
+      position: relative;
+    }
+
+    .title-card:hover {
+      transform: translateY(-3px);
+      box-shadow: 4px 6px 0px rgba(0,0,0,0.3);
     }
 
     .title-card .icon {
       font-size: 35px;
     }
 
+    .title-card .title-text {
+      display: flex;
+      flex-direction: column;
+      align-items: flex-start;
+    }
+
     .title-card h1 {
       font-size: 22px;
       line-height: 1.2;
       color: #000;
+    }
+
+    .click-badge {
+      margin-top: 4px;
+      font-size: 11px;
+      background-color: #ff7597;
+      color: #fff;
+      padding: 2px 6px;
+      border-radius: 8px;
+      border: 1px solid #000;
+      animation: blink 1.5s infinite;
+    }
+
+    @keyframes blink {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.4; }
     }
 
     .instruction-card {
@@ -303,6 +334,55 @@
       text-align: center;
     }
 
+    /* 소개서 모달 전용 스타일 */
+    .intro-modal-content {
+      background-color: #fff;
+      max-width: 450px;
+      color: #000;
+    }
+
+    .intro-modal-content .modal-title {
+      color: #124368;
+      text-shadow: none;
+      border-bottom: 2px dashed #ccc;
+      padding-bottom: 12px;
+      margin-bottom: 15px;
+    }
+
+    .intro-text-box {
+      max-height: 60vh;
+      overflow-y: auto;
+      font-size: 14px;
+      line-height: 1.7;
+      padding-right: 10px;
+      text-align: left;
+    }
+
+    .intro-text-box p {
+      margin-bottom: 15px;
+    }
+
+    .intro-text-box strong {
+      color: #124368;
+      background-color: #e0f2f1;
+      padding: 0 4px;
+    }
+
+    .intro-text-box ul {
+      list-style: none;
+      padding-left: 10px;
+      margin-bottom: 15px;
+    }
+
+    .intro-text-box li {
+      margin-bottom: 5px;
+    }
+
+    .intro-text-box .highlight {
+      font-weight: bold;
+      color: #ff7597;
+    }
+
     /* 화면에서 가려진 1px 크기의 숨김 백그라운드 플레이어 */
     .hidden-player {
       position: absolute;
@@ -406,9 +486,13 @@
   <div class="container">
     <!-- 좌측 영역 -->
     <div class="left-col">
-      <div class="title-card">
+      <!-- 타이틀 카드 (클릭 시 소개 모달 열림) -->
+      <div class="title-card" onclick="openIntroModal()">
         <div class="icon">🧙‍♂️</div>
-        <h1>지텃씨<br>프로젝트</h1>
+        <div class="title-text">
+          <h1>지텃씨<br>프로젝트</h1>
+          <span class="click-badge"> CLICK!</span>
+        </div>
       </div>
 
       <div class="instruction-card">
@@ -428,7 +512,6 @@ CodeU에서는 너의 생각과 고민을 자유롭게 나누면 답장해줄게
     <!-- 중앙 메뉴 버튼 영역 -->
     <div class="menu-col">
       
-      <!-- 노래듣기 버튼 -->
       <a href="#" onclick="openMusicModal(); return false;" class="menu-btn btn-pink">
         <div>
           노래듣기
@@ -437,13 +520,11 @@ CodeU에서는 너의 생각과 고민을 자유롭게 나누면 답장해줄게
         <span>🎧</span>
       </a>
 
-      <!-- Code U 외부 링크 -->
       <a href="https://tkmmstars.github.io/" target="_blank" class="menu-btn btn-blue">
         <span>프로젝트 Code U</span>
         <span>👾</span>
       </a>
 
-      <!-- 🚧 업데이트 팝업이 연결된 메뉴들 -->
       <a href="#" onclick="openUpdateModal(); return false;" class="menu-btn btn-pink">
         <span style="font-size: 12px;">판타지소설 단편 &lt;티르샤와 하얀마법서&gt;</span>
         <span>📖</span>
@@ -494,13 +575,82 @@ CodeU에서는 너의 생각과 고민을 자유롭게 나누면 답장해줄게
     </div>
   </div>
 
+  <!-- 📖 지텃씨 프로젝트 소개서 모달 -->
+  <div id="intro-modal" class="modal" onclick="handleIntroModalClick(event)">
+    <div class="modal-content intro-modal-content">
+      <div class="close-btn" onclick="closeIntroModal()">X</div>
+      <h2 class="modal-title">🌱 지텃씨 프로젝트 소개서</h2>
+      
+      <div class="intro-text-box">
+        <p>
+          안녕? 만나서 반가워. 🌱<br>
+          나는 오늘 너희에게<br>
+          &lt;지텃씨프로젝트&gt;를 소개할 테라야.<br>
+          천천히 지텃씨 이야기를 들려줄게. 🧑‍🌾
+        </p>
+        
+        <p>
+          &lt;지텃씨프로젝트&gt;는<br>
+          직접 부딪히며 배우는 ‘경험’을 통해<br>
+          각자 저마다의 다양한 삶의 궤적을<br>
+          함께 만들고, 응원하는 곳이야.<br>
+          인생에 정답은 없으니까.
+        </p>
+
+        <p>
+          누군가에게 손을 내밀어 돕고,<br>
+          그런 따뜻한 손길들이 돌고돌아<br>
+          나에게 닿는다는 것을 나는 안다는 마음으로,<br>
+          나와 타인을 위한 재밌는 세상을 만들기위한<br>
+          움직임들이 꿈틀거리고있지.
+        </p>
+
+        <ul>
+          <li><strong>나의 우주를 확장하는</strong> &lt;북클럽&gt;</li>
+          <li><strong>고립이 아닌 연결</strong> &lt;사회활동&gt;</li>
+          <li><strong>함께 만드는 작은</strong> &lt;프로젝트&gt;</li>
+          <li><strong>인생 정찰대</strong> &lt;멘토-멘티&gt;</li>
+        </ul>
+
+        <p>정기적으로 열리는 활동도 소개할게.</p>
+
+        <p>
+          <span class="highlight">🐻 삐숑빠숑 유턴클럽</span><br>
+          학교를 탈출한 친구들,<br>
+          그리고 학교를 탈출할 준비를 하고 있는 친구들이<br>
+          함께 만들어가는 클럽이야.<br>
+          지금은 온라인 공간<br>
+          &lt;Code U&gt;를 함께 만들어가는 중이야! 💻✨
+        </p>
+
+        <p>
+          <span class="highlight">🎨 지텃씨 창작실</span><br>
+          누군가는 창작활동을 사부작<br>
+          누군가는 수다클럽의 시작<br>
+          한 공간, 여러 활동이 공존해.
+        </p>
+
+        <p>
+          <span class="highlight">🧑‍🌾 지텃씨를 함께 만드는 사람들</span><br>
+          &lt;펴낸이&gt;<br>
+          이수(테라) 🌱<br><br>
+          &lt;함께 이끄는 사람&gt;<br>
+          철우 🌾<br><br>
+          &lt;프로젝트 멤버&gt;<br>
+          <strong>🐻 삐숑빠숑 유턴클럽</strong><br>
+          과일장수 · 개발자💻 · 흑곰<br><br>
+          <strong>🎨 지텃씨 창작실</strong><br>
+          티르샤 · 문쑤 · 현우 · 정민
+        </p>
+      </div>
+    </div>
+  </div>
+
   <!-- 🎧 음악 플레이어 모달 -->
   <div id="music-modal" class="modal" onclick="handleMusicModalClick(event)">
     <div class="modal-content">
       <div class="close-btn" onclick="closeMusicModal()">X</div>
       <h2 class="modal-title">🎧 BGM 플레이리스트</h2>
-
-      <!-- 곡 목록 -->
       <ul class="playlist">
         <li>
           <div class="song-info">
@@ -617,6 +767,19 @@ CodeU에서는 너의 생각과 고민을 자유롭게 나누면 답장해줄게
     // --------------------------------------------------------
     // 2. 모달(팝업) 제어 함수
     // --------------------------------------------------------
+    
+    // 소개서 모달
+    function openIntroModal() {
+      document.getElementById('intro-modal').classList.add('show');
+    }
+    function closeIntroModal() {
+      document.getElementById('intro-modal').classList.remove('show');
+    }
+    function handleIntroModalClick(event) {
+      if (event.target.id === 'intro-modal') closeIntroModal();
+    }
+
+    // 음악 모달
     function openMusicModal() {
       document.getElementById('music-modal').classList.add('show');
     }
@@ -627,6 +790,7 @@ CodeU에서는 너의 생각과 고민을 자유롭게 나누면 답장해줄게
       if (event.target.id === 'music-modal') closeMusicModal();
     }
 
+    // 업데이트 모달
     function openUpdateModal() {
       document.getElementById('update-modal').classList.add('show');
     }
@@ -637,17 +801,18 @@ CodeU에서는 너의 생각과 고민을 자유롭게 나누면 답장해줄게
       if (event.target.id === 'update-modal') closeUpdateModal();
     }
 
+    // ESC 키로 열린 모달 닫기
     window.addEventListener('keydown', function(e) {
       if (e.key === 'Escape') {
+        closeIntroModal();
         closeMusicModal();
         closeUpdateModal();
       }
     });
 
-        // --------------------------------------------------------
+    // --------------------------------------------------------
     // 3. 방문자 수 카운터 로직 (에러 복구 및 폴백 추가)
     // --------------------------------------------------------
-    // v2로 네임스페이스를 변경하여 서버 데이터를 깨끗하게 초기화합니다.
     const NAMESPACE = "jitut_project_2026_v2"; 
     const todayDate = new Date().toISOString().split('T')[0];
     const hasVisited = sessionStorage.getItem('visited_session');
