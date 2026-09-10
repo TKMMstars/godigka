@@ -95,6 +95,39 @@
       50% { opacity: 0.4; }
     }
 
+    /* 인스타그램 링크 버튼 */
+    .instagram-card {
+      background: linear-gradient(45deg, #f09433 0%, #e6683c 25%, #dc2743 50%, #cc2366 75%, #bc1888 100%);
+      border: 3px solid #000;
+      border-radius: 20px;
+      padding: 14px 18px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      text-decoration: none;
+      color: #fff;
+      font-weight: bold;
+      font-size: 14px;
+      box-shadow: 3px 3px 0px rgba(0,0,0,0.3);
+      transition: transform 0.1s ease, box-shadow 0.1s ease;
+      cursor: pointer;
+    }
+
+    .instagram-card:hover {
+      transform: translateY(-3px);
+      box-shadow: 4px 6px 0px rgba(0,0,0,0.3);
+    }
+
+    .instagram-icon {
+      width: 22px;
+      height: 22px;
+      stroke: #fff;
+      stroke-width: 2.5;
+      fill: none;
+      stroke-linecap: round;
+      stroke-linejoin: round;
+    }
+
     .instruction-card {
       background-color: #6ebfe4;
       border: 3px solid #1a3952;
@@ -491,10 +524,21 @@
         <div class="icon">🧙‍♂️</div>
         <div class="title-text">
           <h1>지텃씨<br>프로젝트</h1>
-          <span class="click-badge"> CLICK!</span>
+          <span class="click-badge">👆 CLICK!</span>
         </div>
       </div>
 
+      <!-- 인스타그램 DM 링크 카드 -->
+      <a href="https://www.instagram.com/seeds_on_earth?stkn=MTJmMjB4Nnhvb2k1eQ%3D%3D&utm_source=qr" target="_blank" class="instagram-card">
+        <span>궁금한거 DM으로 물어보기!</span>
+        <svg class="instagram-icon" viewBox="0 0 24 24">
+          <rect x="2" y="2" width="20" height="20" rx="5" ry="5"></rect>
+          <path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"></path>
+          <line x1="17.5" y1="6.5" x2="17.51" y2="6.5"></line>
+        </svg>
+      </a>
+
+      <!-- 사용방법 카드 -->
       <div class="instruction-card">
         <div class="header">
           <span>🔮</span> 사용방법
@@ -768,7 +812,6 @@ CodeU에서는 너의 생각과 고민을 자유롭게 나누면 답장해줄게
     // 2. 모달(팝업) 제어 함수
     // --------------------------------------------------------
     
-    // 소개서 모달
     function openIntroModal() {
       document.getElementById('intro-modal').classList.add('show');
     }
@@ -779,7 +822,6 @@ CodeU에서는 너의 생각과 고민을 자유롭게 나누면 답장해줄게
       if (event.target.id === 'intro-modal') closeIntroModal();
     }
 
-    // 음악 모달
     function openMusicModal() {
       document.getElementById('music-modal').classList.add('show');
     }
@@ -790,7 +832,6 @@ CodeU에서는 너의 생각과 고민을 자유롭게 나누면 답장해줄게
       if (event.target.id === 'music-modal') closeMusicModal();
     }
 
-    // 업데이트 모달
     function openUpdateModal() {
       document.getElementById('update-modal').classList.add('show');
     }
@@ -801,7 +842,6 @@ CodeU에서는 너의 생각과 고민을 자유롭게 나누면 답장해줄게
       if (event.target.id === 'update-modal') closeUpdateModal();
     }
 
-    // ESC 키로 열린 모달 닫기
     window.addEventListener('keydown', function(e) {
       if (e.key === 'Escape') {
         closeIntroModal();
@@ -823,7 +863,6 @@ CodeU에서는 너의 생각과 고민을 자유롭게 나누면 답장해줄게
       try {
         let response = await fetch(`https://api.counterapi.dev/v1/${NAMESPACE}/${key}/${action}`);
         
-        // 데이터가 아직 서버에 없어서 조회(get) 에러가 발생하면, 생성(up)으로 재시도
         if (response.status === 404 && action === 'get') {
           action = 'up';
           response = await fetch(`https://api.counterapi.dev/v1/${NAMESPACE}/${key}/${action}`);
@@ -839,8 +878,6 @@ CodeU에서는 너의 생각과 고민을 자유롭게 나누면 답장해줄게
       } catch (error) {
         console.error("카운터 동기화 실패, 로컬 데이터로 대체함:", error);
         
-        // 깃허브 등 서버에 안 올리고 내 PC에서 테스트할 때 빈칸이 되지 않도록 
-        // 임시로 내 컴퓨터 저장소(localStorage)의 숫자를 보여줌
         let localCount = parseInt(localStorage.getItem(key) || "0");
         if (!hasVisited && action === 'up') {
           localCount += 1;
