@@ -545,7 +545,7 @@
         </div>
         <div class="content-box">
 각 게시판의 아이콘을 누르면 더 자세한 이야기를 만나볼 수 있어. 
-&lt;일글꺼리&gt;는 정기적으로 내용이 업데이트될 예정이야.
+&lt;일글거리&gt;는 정기적으로 내용이 업데이트될 예정이야.
 Code U에서는 다양한 스타일의 고민나누기방이 준비되어 있어.
 너의 생각과 고민을 자유롭게 나눠주면, 답장할게!
         </div>
@@ -579,8 +579,9 @@ Code U에서는 다양한 스타일의 고민나누기방이 준비되어 있어
         <span>🌀</span>
       </a>
 
-      <a href="#" onclick="openUpdateModal(); return false;" class="menu-btn btn-pink">
-        <span>읽을거리</span>
+      <!-- 🔥 일글거리로 변경됨 (클릭시 모달 오픈) -->
+      <a href="#" onclick="openIlgeulModal(); return false;" class="menu-btn btn-pink">
+        <span>일글거리</span>
         <span>🌸</span>
       </a>
 
@@ -730,6 +731,24 @@ Code U에서는 다양한 스타일의 고민나누기방이 준비되어 있어
     </div>
   </div>
 
+  <!-- 🔥 일글거리 모달 (새로 추가됨) -->
+  <div id="ilgeul-modal" class="modal" onclick="handleIlgeulModalClick(event)">
+    <div class="modal-content" style="max-width: 350px;">
+      <div class="close-btn" onclick="closeIlgeulModal()">X</div>
+      <h2 class="modal-title">🌸 일글거리</h2>
+      <div class="menu-col" style="margin-top: 20px;">
+        <a href="#" onclick="openUpdateModal(); return false;" class="menu-btn btn-pink">
+          <span>누군가의 다이어리</span>
+          <span>📓</span>
+        </a>
+        <a href="#" onclick="openUpdateModal(); return false;" class="menu-btn btn-blue">
+          <span>티르샤의 하얀마법사</span>
+          <span>🧙‍♀️</span>
+        </a>
+      </div>
+    </div>
+  </div>
+
   <!-- 🚧 업데이트 준비중 팝업 모달 -->
   <div id="update-modal" class="modal" onclick="handleUpdateModalClick(event)">
     <div class="modal-content" style="max-width: 320px; text-align: center; background-color: #ffffff;">
@@ -844,11 +863,23 @@ Code U에서는 다양한 스타일의 고민나누기방이 준비되어 있어
       if (event.target.id === 'update-modal') closeUpdateModal();
     }
 
+    // 🔥 일글거리 모달 제어 로직 추가
+    function openIlgeulModal() {
+      document.getElementById('ilgeul-modal').classList.add('show');
+    }
+    function closeIlgeulModal() {
+      document.getElementById('ilgeul-modal').classList.remove('show');
+    }
+    function handleIlgeulModalClick(event) {
+      if (event.target.id === 'ilgeul-modal') closeIlgeulModal();
+    }
+
     window.addEventListener('keydown', function(e) {
       if (e.key === 'Escape') {
         closeIntroModal();
         closeMusicModal();
         closeUpdateModal();
+        closeIlgeulModal(); // ESC 누를 때 일글거리 모달도 닫힘
       }
     });
 
